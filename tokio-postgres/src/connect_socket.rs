@@ -35,6 +35,7 @@ pub(crate) async fn connect_socket(
                     };
 
                 stream.set_nodelay(true).map_err(Error::connect)?;
+                #[cfg(not(madsim))]
                 if keepalives {
                     SockRef::from(&stream)
                         .set_tcp_keepalive(&TcpKeepalive::new().with_time(keepalives_idle))
