@@ -53,8 +53,8 @@ parking_lot = "0.12"
 percent-encoding = "2.0"
 pin-project-lite = "0.2"
 phf = "0.11"
-postgres-protocol = { version = "0.6.4", path = "../postgres-protocol" }
-postgres-types = { version = "0.2.4", path = "../postgres-types" }
+postgres-protocol = { version = "0.6.4" }
+postgres-types = { version = "0.2.4" }
 socket2 = { version = "0.5", features = ["all"] }
 tokio = { version = "0.2.2", package = "madsim-tokio", features = ["io-util"] }
 tokio-util = { version = "0.7", features = ["codec"] }
