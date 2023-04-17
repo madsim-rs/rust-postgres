@@ -1,4 +1,5 @@
 use crate::config::Host;
+use crate::keepalive::KeepaliveConfig;
 use crate::{Error, Socket};
 use socket2::{SockRef, TcpKeepalive};
 use std::future::Future;
@@ -13,8 +14,8 @@ pub(crate) async fn connect_socket(
     host: &Host,
     port: u16,
     connect_timeout: Option<Duration>,
-    keepalives: bool,
-    keepalives_idle: Duration,
+    tcp_user_timeout: Option<Duration>,
+    keepalive_config: Option<&KeepaliveConfig>,
 ) -> Result<Socket, Error> {
     match host {
         Host::Tcp(host) => {
@@ -35,10 +36,21 @@ pub(crate) async fn connect_socket(
                     };
 
                 stream.set_nodelay(true).map_err(Error::connect)?;
+
                 #[cfg(not(madsim))]
-                if keepalives {
-                    SockRef::from(&stream)
-                        .set_tcp_keepalive(&TcpKeepalive::new().with_time(keepalives_idle))
+                let sock_ref = SockRef::from(&stream);
+                #[cfg(target_os = "linux")]
+                #[cfg(not(madsim))]
+                {
+                    sock_ref
+                        .set_tcp_user_timeout(tcp_user_timeout)
+                        .map_err(Error::connect)?;
+                }
+
+                #[cfg(not(madsim))]
+                if let Some(keepalive_config) = keepalive_config {
+                    sock_ref
+                        .set_tcp_keepalive(&TcpKeepalive::from(keepalive_config))
                         .map_err(Error::connect)?;
                 }
 

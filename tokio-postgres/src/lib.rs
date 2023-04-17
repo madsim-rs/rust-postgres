@@ -163,6 +163,7 @@ mod copy_in;
 mod copy_out;
 pub mod error;
 mod generic_client;
+mod keepalive;
 mod maybe_tls_stream;
 mod portal;
 mod prepare;
@@ -238,6 +239,7 @@ pub enum AsyncMessage {
 }
 
 /// Message returned by the `SimpleQuery` stream.
+#[derive(Debug)]
 #[non_exhaustive]
 pub enum SimpleQueryMessage {
     /// A row of data.

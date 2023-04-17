@@ -44,10 +44,17 @@ use tokio_postgres::{Error, Socket};
 ///     omitted or the empty string.
 /// * `connect_timeout` - The time limit in seconds applied to each socket-level connection attempt. Note that hostnames
 ///     can resolve to multiple IP addresses, and this limit is applied to each address. Defaults to no timeout.
+/// * `tcp_user_timeout` - The time limit that transmitted data may remain unacknowledged before a connection is forcibly closed.
+///     This is ignored for Unix domain socket connections. It is only supported on systems where TCP_USER_TIMEOUT is available
+///     and will default to the system default if omitted or set to 0; on other systems, it has no effect.
 /// * `keepalives` - Controls the use of TCP keepalive. A value of 0 disables keepalive and nonzero integers enable it.
 ///     This option is ignored when connecting with Unix sockets. Defaults to on.
 /// * `keepalives_idle` - The number of seconds of inactivity after which a keepalive message is sent to the server.
 ///     This option is ignored when connecting with Unix sockets. Defaults to 2 hours.
+/// * `keepalives_interval` - The time interval between TCP keepalive probes.
+///     This option is ignored when connecting with Unix sockets.
+/// * `keepalives_retries` - The maximum number of TCP keepalive probes that will be sent before dropping a connection.
+///     This option is ignored when connecting with Unix sockets.
 /// * `target_session_attrs` - Specifies requirements of the session. If set to `read-write`, the client will check that
 ///     the `transaction_read_write` session parameter is set to `on`. This can be used to connect to the primary server
 ///     in a database cluster as opposed to the secondary read-only mirrors. Defaults to `all`.
@@ -252,6 +259,22 @@ impl Config {
         self.config.get_connect_timeout()
     }
 
+    /// Sets the TCP user timeout.
+    ///
+    /// This is ignored for Unix domain socket connections. It is only supported on systems where
+    /// TCP_USER_TIMEOUT is available and will default to the system default if omitted or set to 0;
+    /// on other systems, it has no effect.
+    pub fn tcp_user_timeout(&mut self, tcp_user_timeout: Duration) -> &mut Config {
+        self.config.tcp_user_timeout(tcp_user_timeout);
+        self
+    }
+
+    /// Gets the TCP user timeout, if one has been set with the
+    /// `user_timeout` method.
+    pub fn get_tcp_user_timeout(&self) -> Option<&Duration> {
+        self.config.get_tcp_user_timeout()
+    }
+
     /// Controls the use of TCP keepalive.
     ///
     /// This is ignored for Unix domain socket connections. Defaults to `true`.
@@ -277,6 +300,33 @@ impl Config {
     /// be sent on the connection.
     pub fn get_keepalives_idle(&self) -> Duration {
         self.config.get_keepalives_idle()
+    }
+
+    /// Sets the time interval between TCP keepalive probes.
+    /// On Windows, this sets the value of the tcp_keepalive struct’s keepaliveinterval field.
+    ///
+    /// This is ignored for Unix domain sockets, or if the `keepalives` option is disabled.
+    pub fn keepalives_interval(&mut self, keepalives_interval: Duration) -> &mut Config {
+        self.config.keepalives_interval(keepalives_interval);
+        self
+    }
+
+    /// Gets the time interval between TCP keepalive probes.
+    pub fn get_keepalives_interval(&self) -> Option<Duration> {
+        self.config.get_keepalives_interval()
+    }
+
+    /// Sets the maximum number of TCP keepalive probes that will be sent before dropping a connection.
+    ///
+    /// This is ignored for Unix domain sockets, or if the `keepalives` option is disabled.
+    pub fn keepalives_retries(&mut self, keepalives_retries: u32) -> &mut Config {
+        self.config.keepalives_retries(keepalives_retries);
+        self
+    }
+
+    /// Gets the maximum number of TCP keepalive probes that will be sent before dropping a connection.
+    pub fn get_keepalives_retries(&self) -> Option<u32> {
+        self.config.get_keepalives_retries()
     }
 
     /// Sets the requirements of the session.
