@@ -1,6 +1,6 @@
 [package]
 name = "postgres-derive"
-version = "0.4.4"
+version = "0.4.5"
 authors = ["Steven Fackler <sfackler@palantir.com>"]
 license = "MIT/Apache-2.0"
 edition = "2018"
@@ -15,3 +15,4 @@ test = false
 syn = "2.0"
 proc-macro2 = "1.0"
 quote = "1.0"
+heck = "0.4"
