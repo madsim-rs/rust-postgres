@@ -1,3 +1,5 @@
+#![cfg_attr(madsim, allow(unused))]
+
 use crate::client::Addr;
 use crate::keepalive::KeepaliveConfig;
 use crate::{Error, Socket};
